@@ -142,6 +142,7 @@ public class ChooserDetailFragment extends Fragment
         sComponentToId.put(ThemesColumns.MODIFIES_FONTS, R.id.chk_fonts);
         sComponentToId.put(ThemesColumns.MODIFIES_ICONS, R.id.chk_icons);
         sComponentToId.put(ThemesColumns.MODIFIES_LAUNCHER, R.id.chk_wallpaper);
+        sComponentToId.put(ThemesColumns.MODIFIES_LOCKSCREEN, R.id.chk_lockscreen);
         sComponentToId.put(ThemesColumns.MODIFIES_RINGTONES, R.id.chk_ringtones);
         sComponentToId.put(ThemesColumns.MODIFIES_NOTIFICATIONS, R.id.chk_notifications);
         sComponentToId.put(ThemesColumns.MODIFIES_ALARMS, R.id.chk_alarms);
@@ -452,6 +453,7 @@ public class ChooserDetailFragment extends Fragment
         int authorIdx = cursor.getColumnIndex(ThemesColumns.AUTHOR);
         int hsIdx = cursor.getColumnIndex(ThemesColumns.HOMESCREEN_URI);
         int styleIdx = cursor.getColumnIndex(ThemesColumns.STYLE_URI);
+        int lockIdx = cursor.getColumnIndex(ThemesColumns.LOCKSCREEN_URI);
         int defaultIdx = cursor.getColumnIndex(ThemesColumns.IS_DEFAULT_THEME);
         int targetApiIdx = cursor.getColumnIndex(ThemesColumns.TARGET_API);
 
@@ -461,6 +463,7 @@ public class ChooserDetailFragment extends Fragment
         String author = cursor.getString(authorIdx);
         String hsImagePath = cursor.getString(hsIdx);
         String styleImagePath = cursor.getString(styleIdx);
+        String lockWallpaperImagePath = cursor.getString(lockIdx);
 
         mTitle.setText(title + (isDefaultTheme ? " " + getString(R.string.default_tag) : ""));
         mAuthor.setText(author);
@@ -499,6 +502,7 @@ public class ChooserDetailFragment extends Fragment
 
         mPagerAdapter.setPreviewImage(hsImagePath);
         mPagerAdapter.setStyleImage(styleImagePath);
+        mPagerAdapter.setLockScreenImage(lockWallpaperImagePath);
         mPagerAdapter.update(supportedComponents);
     }
 
@@ -599,6 +603,7 @@ public class ChooserDetailFragment extends Fragment
         private List<String> mPreviewList = new LinkedList<String>();
         private List<String> mSupportedComponents = Collections.emptyList();
         private String mPreviewImagePath;
+        private String mLockScreenImagePath;
         private String mStyleImagePath;
 
         public ThemeDetailPagerAdapter(FragmentManager fm) {
@@ -611,6 +616,10 @@ public class ChooserDetailFragment extends Fragment
 
         public void setStyleImage(String imagePath) {
             mStyleImagePath = imagePath;
+        }
+
+        public void setLockScreenImage(String lockPath) {
+            mLockScreenImagePath = lockPath;
         }
 
         private void update(List<String> supportedComponents) {
@@ -675,6 +684,9 @@ public class ChooserDetailFragment extends Fragment
                 fragment = BootAniPreviewFragment.newInstance(mPkgName);
             } else if (component.equals(ThemesColumns.MODIFIES_FONTS)) {
                 fragment = FontPreviewFragment.newInstance(mPkgName);
+            } else if (component.equals(ThemesColumns.MODIFIES_LOCKSCREEN)) {
+                fragment = WallpaperAndIconPreviewFragment.newInstance(mLockScreenImagePath,
+                        mPkgName, false);
             } else if (component.equals(ThemesColumns.MODIFIES_LAUNCHER)) {
                 throw new UnsupportedOperationException("Not implemented yet!");
             } else if (component.equals(ThemesColumns.MODIFIES_ICONS)) {
@@ -698,6 +710,7 @@ public class ChooserDetailFragment extends Fragment
         private static final List<String> sRank = Arrays.asList(
                 ThemesColumns.MODIFIES_LAUNCHER,
                 ThemesColumns.MODIFIES_OVERLAYS,
+                ThemesColumns.MODIFIES_LOCKSCREEN,
                 ThemesColumns.MODIFIES_FONTS,
                 ThemesColumns.MODIFIES_ICONS,
                 ThemesColumns.MODIFIES_BOOT_ANIM,
